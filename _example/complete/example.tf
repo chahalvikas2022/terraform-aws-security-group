@@ -1,0 +1,160 @@
+provider "aws" {
+  region = "eu-west-1"
+}
+
+locals {
+  name        = "app11"
+  environment = "test"
+}
+
+##-----------------------------------------------------------------------------
+## VPC Module Call.
+##-----------------------------------------------------------------------------
+module "vpc" {
+  source      = "git::https://github.com/chahalvikas2022/terraform-aws-vpc.git"
+  name        = "appdd"
+  environment = "test"
+  cidr_block  = "10.0.0.0/16"
+}
+
+##-----------------------------------------------------------------------------
+## Application Security Group
+##-----------------------------------------------------------------------------
+resource "aws_security_group" "app_sg" {
+  name        = "app-sg"
+  description = "App security group used for source SG rules"
+  vpc_id      = module.vpc.id
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "app-sg"
+  }
+}
+
+
+##-----------------------------------------------------------------------------
+## Security Group Module Call.
+##-----------------------------------------------------------------------------
+module "security_group" {
+  source      = "./../../"
+  name        = local.name
+  environment = local.environment
+  vpc_id      = module.vpc.id
+
+  ## INGRESS Rules
+  new_sg_ingress_rules_with_cidr_blocks = [{
+    rule_count  = 1
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["172.16.0.0/16"]
+    description = "Allow ssh traffic."
+    },
+    {
+      rule_count  = 2
+      from_port   = 27017
+      to_port     = 27017
+      protocol    = "tcp"
+      cidr_blocks = ["172.16.0.0/16"]
+      description = "Allow Mongodb traffic."
+    }
+  ]
+
+  new_sg_ingress_rules_with_self = [{
+    rule_count  = 1
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    description = "Allow ssh traffic."
+    },
+    {
+      rule_count  = 2
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      description = "Allow Mongodbn traffic."
+    }
+  ]
+
+  new_sg_ingress_rules_with_source_sg_id = [{
+    rule_count               = 1
+    from_port                = 22
+    to_port                  = 22
+    protocol                 = "tcp"
+    source_security_group_id = aws_security_group.app_sg.id
+    description              = "Allow ssh traffic."
+    },
+    {
+      rule_count               = 2
+      from_port                = 27017
+      to_port                  = 27017
+      protocol                 = "tcp"
+      source_security_group_id = aws_security_group.app_sg.id
+      description              = "Allow Mongodb traffic."
+  }]
+
+  ## EGRESS Rules
+  new_sg_egress_rules_with_cidr_blocks = [{
+    rule_count  = 1
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [module.vpc.vpc_cidr_block, "172.16.0.0/16"]
+    description = "Allow ssh outbound traffic."
+    },
+    {
+      rule_count  = 2
+      from_port   = 27017
+      to_port     = 27017
+      protocol    = "tcp"
+      cidr_blocks = ["172.16.0.0/16"]
+      description = "Allow Mongodb outbound traffic."
+    }
+  ]
+
+  new_sg_egress_rules_with_self = [{
+    rule_count  = 1
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    description = "Allow ssh outbound traffic."
+    },
+    {
+      rule_count  = 2
+      from_port   = 27017
+      to_port     = 27017
+      protocol    = "tcp"
+      description = "Allow Mongodb traffic."
+  }]
+
+  new_sg_egress_rules_with_source_sg_id = [{
+    rule_count               = 1
+    from_port                = 22
+    to_port                  = 22
+    protocol                 = "tcp"
+    source_security_group_id = aws_security_group.app_sg.id
+    description              = "Allow ssh outbound traffic."
+    },
+    {
+      rule_count               = 2
+      from_port                = 27017
+      to_port                  = 27017
+      protocol                 = "tcp"
+      source_security_group_id = aws_security_group.app_sg.id
+      description              = "Allow Mongodb traffic."
+  }]
+}
+
