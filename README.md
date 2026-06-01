@@ -39,7 +39,7 @@
 
 ```hcl
 module "security_group" {
-  source      = "git::https://github.com/opsstation/terraform-aws-security-group.git?ref=v1.0.0"
+  source      = "git::https://github.com/chahalvikas2022/terraform-aws-security-group.git"
   name        = local.name
   environment = local.environment
   vpc_id      = module.vpc.vpc_id
@@ -87,7 +87,7 @@ module "security_group" {
 ## Example: Complete
 ```hcl
 module "security_group" {
-  source      = "git::https://github.com/opsstation/terraform-aws-security-group.git?ref=v1.0.0"
+  source      = "git::https://github.com/chahalvikas2022/terraform-aws-security-group.git"
   name        = local.name
   environment = local.environment
   vpc_id      = module.vpc.vpc_id
@@ -201,7 +201,7 @@ module "security_group" {
 
 ```hcl
 module "security_group_rules" {
-  source         = "git::https://github.com/opsstation/terraform-aws-security-group.git?ref=v1.0.0"
+  source         = "https://github.com/chahalvikas2022/terraform-aws-security-group.git"
   name           = local.name
   environment    = local.environment
   vpc_id         = module.vpc.vpc_id
@@ -251,7 +251,7 @@ module "security_group_rules" {
 
 ```hcl
 module "security_group" {
-  source              = "git::https://github.com/opsstation/terraform-aws-security-group.git?ref=v1.0.0"
+  source              = "git::https://github.com/chahalvikas2022/terraform-aws-security-group.git"
   name                = local.name
   environment         = local.environment
   vpc_id              = module.vpc.vpc_id
@@ -306,4 +306,4 @@ module "security_group" {
 ---
 
 ### 💙 Maintained by [vikas]
-> vikash — Simplifying Cloud, Securing Scale.
+> vikas — Simplifying Cloud, Securing Scale.
