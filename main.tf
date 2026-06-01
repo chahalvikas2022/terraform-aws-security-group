@@ -1,6 +1,5 @@
 module "labels" {
   source      = "git::https://github.com/chahalvikas2022/terraform-multicloud-labels.git"
-  version     = "1.0.0"
   name        = var.name
   environment = var.environment
   managedby   = var.managedby
